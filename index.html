@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <link rel="stylesheet" href="3rdParty/Cesium/Widgets/widgets.css">
+    <link rel="stylesheet" type="text/css" href="css/iconfont.css">
+    <script type="text/javascript" src="3rdParty/Cesium/Cesium.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/three@0.147/build/three.min.js"></script>
+    
+    <!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+
+<style>
+  html,body{
+    height:100%;
+  }
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background-color: rgba(0, 0, 0, 0.3);border-radius: 10px;}
+  ::-webkit-scrollbar-thumb{background-color: rgba(0, 0, 50, 0.7);border-radius: 10px;}
+  ::-webkit-scrollbar-thumb:hover {background-color: rgba(0, 0, 50, 0.7);}
+  ::-webkit-scrollbar-thumb:active {background-color: rgba(0, 0, 50, 0.7);}
+</style>
