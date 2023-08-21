@@ -1,29 +1,37 @@
+/*
+ * @Author: xiezhipeng
+ * @Date: 2023-8-07 10:25:40
+ * @LastEditors: xiezhipeng
+ * @LastEditTime: 2023-8-07 10:25:41
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 
 import { EquirectangularTilesAdapter } from "photo-sphere-viewer/dist/adapters/equirectangular-tiles";
 import { Viewer } from "photo-sphere-viewer";
 import { MarkersPlugin } from "photo-sphere-viewer/dist/plugins/markers";
 import { GalleryPlugin } from "photo-sphere-viewer/dist/plugins/gallery";
+import { VirtualTourPlugin } from "photo-sphere-viewer/dist/plugins/virtual-tour";
 import "photo-sphere-viewer/dist/photo-sphere-viewer.css";
 import "photo-sphere-viewer/dist/plugins/markers.css";
 import "photo-sphere-viewer/dist/plugins/gallery.css";
+import "photo-sphere-viewer/dist/plugins/virtual-tour.css";
 
 /**
- * Cesium卷帘封装类，除UI外封装一些内部功能,仅仅仅只包含左右的卷帘
+ * 全景类
  */
 export class PanoramaViewer {
-
-
-
-   /***
-      * 构造全景图插件
-      * 
-      * @param {String} div 
-      * @param {Object} option 
-      * 
-      */
+  /***
+   * 构造全景图插件
+   *
+   * @param {String} div
+   * @param {Object} option
+   *
+   */
   constructor(div, option) {
     let cfg = {
-      adapter: EquirectangularTilesAdapter,
+      adapter: [EquirectangularTilesAdapter,{
+        baseBlur: false,
+    }],
       container: document.getElementById(div),
       caption: "全景图",
       navbar: ["autorotate", "zoom", "caption", "fullscreen", "gallery"],
@@ -33,6 +41,13 @@ export class PanoramaViewer {
           GalleryPlugin,
           {
             visibleOnLoad: true,
+          },
+        ],
+        [
+          VirtualTourPlugin,
+          {
+            positionMode: VirtualTourPlugin.MODE_GPS,
+            renderMode: VirtualTourPlugin.MODE_3D,
           },
         ],
       ],
@@ -51,17 +66,32 @@ export class PanoramaViewer {
     // }
     // this.PSV = new Viewer(cfg);
 
+    //panorama-loaded
     this.PSV.on("panorama-loaded", () => {
+      debugger
       this.changepano(this.PSV.config.panorama.name);
+
+
     });
   }
 
-  //加载数据,传入配置文件，配置文件记录相关信息
+
+  loadMarker(option){
+
+  }
+
+  /**
+   * 加载数据,传入配置文件，配置文件记录相关信息
+   * @param {*} url
+   */
   load(url) {
     //默认加载第一组
   }
 
-  //加载全部数据
+  /**
+   * 加载全部数据
+   * @param {Object} metadata
+   */
   loadDatas(metadata) {
     let that = this;
     let imagescfg = this.curphotos.images.map((c) => {
@@ -69,17 +99,41 @@ export class PanoramaViewer {
     });
   }
 
-  //加载单组数据
+  /**
+   * 加载单组数据
+   * @param {Object} metadata
+   */
   loadData(metadata) {
     let that = this;
     let imagescfg = metadata.images.map((c) => {
       return that.image2config(c, metadata.name);
     });
-    //获取到
-    const galleryPlugin = this.PSV.getPlugin(GalleryPlugin);
-    galleryPlugin.setItems(imagescfg);
 
-    this.PSV.setPanorama(imagescfg[0].panorama);
+    //添加link信息,遍历全部id
+    let ids = imagescfg.map((i) => i.id);
+
+    imagescfg.forEach((j) => {
+      //排除自己
+      let newids = ids
+        .filter((k) => {
+          return k != j.id;
+        })
+        .map((f) => {
+          return {
+            nodeId: f,
+          };
+        });
+      j.links = newids;
+    });
+
+    //获取到
+    // const galleryPlugin = this.PSV.getPlugin(GalleryPlugin);
+    // galleryPlugin.setItems(imagescfg);
+
+    const virtualTourPlugin = this.PSV.getPlugin(VirtualTourPlugin);
+    virtualTourPlugin.setNodes(imagescfg);
+
+    //this.PSV.setPanorama(imagescfg[0].panorama);
     this.curphotos = metadata;
   }
 
@@ -87,7 +141,20 @@ export class PanoramaViewer {
   changepano(item) {
     this.curphoto = this.curphotos.images.find((i) => i.imagename == item);
     this.initpoi();
+
+    //获取并构造
+    // let panoData=this.curphoto.panoData;
+    // if(panoData)
+    // {
+    //   let sphereCorrection={ pan:panoData.poseHeading/180.0*Math.PI, tilt:panoData.posePitch/180.0*Math.PI, roll: 0 }
+    //   this.PSV.setOption('sphereCorrection', sphereCorrection);
+    // }else
+    // {
+      
+    //   this.PSV.setOption('sphereCorrection', {pan:0,tilt:0,roll:0});
+    // }
   }
+
   initpoi() {
     const markersPlugin = this.PSV.getPlugin(MarkersPlugin);
     markersPlugin.clearMarkers();
@@ -112,6 +179,7 @@ export class PanoramaViewer {
     return {
       id: item.imagename,
       name: item.imagename,
+      baseBlur:false,
       thumbnail: `${this.baseUrl2}${dkname}/${item.imagename}/${item.imagename}_low.JPG`,
       panorama: {
         name: item.imagename,
@@ -124,7 +192,12 @@ export class PanoramaViewer {
             row + 1
           }-column-${col + 1}.jpg`;
         },
+        basePanoData:  (image, xmpData) => {
+          
+          return item.panoData?item.panoData:{};
+        }
       },
+      position: item.lonlat,
       // option:{
       //   width: 8192,
       //   cols: 8,
