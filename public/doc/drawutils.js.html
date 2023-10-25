@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: drawutils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: drawutils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { MarkersPlugin } from "photo-sphere-viewer/dist/plugins/markers";
+import { cloneDeep, omit, debounce, isEqual, pickBy, range } from 'lodash';
+
+let TEMP_ID_1 = 'marker-temp';
+let id=0;
+let TEMP_ID;
+
+
+/**
+ * 计算面积
+ */
+export function caculateArea(panoData,position,center){
+    
+}
+
+/**
+ * 坐标转换，本地坐标转换成84坐标
+ */
+export function coordinatesLocalTransformWGS84(panoData,position,center){
+     //return [center[0],center[1]]
+
+     let realtiveHeight=center.height;
+     let latitude=position.latitude;
+     let distance=realtiveHeight/Math.tan(latitude);
+     let offsetlatitude=panoData.poseHeading;
+     
+}
+
+
+/**
+ * 绘制帮助类，
+ */
+export class DrawUtil
+{
+  /**
+   * 
+   * @param {*} viewer  PSV对象
+   */
+    constructor(viewer){
+        this.viewer=viewer.PSV;
+        //this.markerForm={};
+
+        this.markerForm  = {
+            saved      : false,
+            id         : null,
+            type       : null,
+            longitude  : null,
+            latitude   : null,
+            image      : null,
+            imageLayer : null,
+            html       : null,
+            polygonRad : null,
+            polylineRad: null,
+            width      : null,
+            height     : null,
+            orientation: null,
+            anchor     : null,
+            listContent: null,
+            content    : null,
+            tooltip    : {
+              content : null,
+              position: null,
+            },
+            style      : {
+              fontSize: null,
+              color   : null,
+            },
+            svgStyle   : {
+              fill       : null,
+              stroke     : null,
+              strokeWidth: null,
+            },
+          };
+
+        this.viewer.on('click',  (e, data) => this.onClick(data));
+        this.viewer.on('dblclick', (e, data)  => this.onDblClick(data));
+
+        this.markers = this.viewer.getPlugin(MarkersPlugin);
+        this.editMarkers =false;
+
+        this.PIN_RED_URL = 'https://photo-sphere-viewer-data.netlify.app/assets/pictos/pin-red.png';
+
+    }
+
+
+    /**
+     * image，imageLayer，html，polygonRad，polylineRad，开启绘制
+     * @param {*} type 
+     */
+    newMarker(type) {
+        this.editMarkers=true;
+        this.cancelMarker();
+        this.markerForm.id = 'marker-' + Math.random().toString(36).slice(2);
+        this.markerForm.type = type;
+        this.markerForm.orientation = 'front';
+        this.markerForm.anchor = 'center center';
+        this.markerForm.tooltip.position = 'top center';
+
+        TEMP_ID=TEMP_ID_1+id++;
+
+        switch (type) {
+          case 'image':
+            this.markerForm.image = this.PIN_RED_URL;
+            this.markerForm.width = 32;
+            this.markerForm.height = 32;
+            this.markerForm.anchor = 'bottom center';
+            break;
+          case 'imageLayer':
+            this.markerForm.imageLayer = this.TARGET_URL;
+            this.markerForm.width = 120;
+            this.markerForm.height = 120;
+            break;
+          case 'html':
+            this.markerForm.html = 'Test content';
+            this.markerForm.style.fontSize = '15px';
+            this.markerForm.style.color = '#222F3D';
+            break;
+          case 'polygonRad':
+            this.markerForm.polygonRad = [];
+            this.markerForm.svgStyle.fill = '#E84B3C';
+            this.markerForm.svgStyle.strokeWidth = 2;
+            this.markerForm.svgStyle.stroke = '#C0382B';
+            break;
+          case 'polylineRad':
+            this.markerForm.polylineRad = [];
+            this.markerForm.svgStyle.strokeWidth = 5;
+            this.markerForm.svgStyle.stroke = '#27AF60';
+            break;
+        }
+    }
+
+
+
+
+
+
+    onClick(data) {
+        
+        if (!this.editMarkers || !this.markerForm.type) {
+            return;
+          }
+  
+          const longitude = Math.round(data.longitude * 1000) / 1000;
+          const latitude = Math.round(data.latitude * 1000) / 1000;
+          Object.assign(this.markerForm, { longitude, latitude });
+  
+          switch (this.markerForm.type) {
+            case 'image':
+            case 'imageLayer':
+            case 'html':
+              if (!this.markerForm.saved) {
+                this.markers.addMarker({
+                  ...cloneDeep(this.markerForm),
+                  longitude,
+                  latitude,
+                });
+                this.cancelMarker();
+              }
+              else {
+                this.markers.updateMarker({
+                  id: this.markerForm.id,
+                  longitude,
+                  latitude,
+                });
+              }
+              break;
+  
+            case 'polygonRad':
+              if (this.markerForm.saved) {
+                return;
+              }
+              this.markerForm.polygonRad.push([longitude, latitude]);
+              switch (this.markerForm.polygonRad.length) {
+                case 1:
+                  this.markers.addMarker({
+                    id      : TEMP_ID,
+                    hideList: true,
+                    longitude,
+                    latitude,
+                    anchor  : 'center center',
+                    circle  : Math.max(1, this.markerForm.svgStyle.strokeWidth / 2),
+                    svgStyle: {
+                      fill: this.markerForm.svgStyle.strokeWidth ? this.markerForm.svgStyle.stroke : this.markerForm.svgStyle.fill,
+                    },
+                  });
+                  break;
+                case 2:
+                  this.markers.removeMarker(TEMP_ID, false);
+                  this.markers.addMarker({
+                    id         : TEMP_ID,
+                    hideList   : true,
+                    polylineRad: this.markerForm.polygonRad,
+                    svgStyle   : {
+                      strokeWidth: Math.max(1, this.markerForm.svgStyle.strokeWidth),
+                      stroke     : this.markerForm.svgStyle.strokeWidth ? this.markerForm.svgStyle.stroke : this.markerForm.svgStyle.fill,
+                    },
+                  });
+                  break;
+                default:
+                  this.markers.removeMarker(TEMP_ID, false);
+                  this.markers.addMarker({
+                    ...cloneDeep(this.markerForm),
+                    id      : TEMP_ID,
+                    hideList: true,
+                  });
+                  break;
+              }
+              break;
+  
+            case 'polylineRad':
+              if (this.markerForm.saved) {
+                return;
+              }
+              this.markerForm.polylineRad.push([longitude, latitude]);
+              switch (this.markerForm.polylineRad.length) {
+                case 1:
+                  this.markers.addMarker({
+                    id      : TEMP_ID,
+                    hideList: true,
+                    longitude,
+                    latitude,
+                    anchor  : 'center center',
+                    circle  : Math.max(1, this.markerForm.svgStyle.strokeWidth / 2),
+                    svgStyle: {
+                      fill: this.markerForm.svgStyle.stroke,
+                    },
+                  });
+                  break;
+                default:
+                  this.markers.removeMarker(TEMP_ID, false);
+                  this.markers.addMarker({
+                    ...cloneDeep(this.markerForm),
+                    id      : TEMP_ID,
+                    hideList: true,
+                  });
+                  break;
+              }
+              break;
+          }
+    }
+
+    onDblClick() {
+        if (!this.editMarkers || !this.markerForm.type) {
+            return;
+          }
+  
+          this.markerForm[this.markerForm.type].pop();
+          this.completeMarker();
+    }
+
+
+    completeMarker() {
+        if (!this.markerForm.saved &amp;&amp;
+          (this.markerForm.type === 'polygonRad' || this.markerForm.type === 'polylineRad') &amp;&amp;
+          this.markerForm[this.markerForm.type].length >= (this.markerForm.type === 'polygonRad' ? 3 : 2)) {
+          this.markers.addMarker(cloneDeep(this.markerForm));
+        }
+
+        this.cancelMarker();
+      }
+
+
+      /**
+       * 取消绘制
+       */
+      cancelMarker() {
+        
+        if (!this.markerForm.saved &amp;&amp;
+          (this.markerForm.type === 'polygonRad' || this.markerForm.type === 'polylineRad') &amp;&amp;
+          this.markerForm[this.markerForm.type].length > 0) {
+          this.markers.removeMarker(TEMP_ID);
+        }
+
+        Object.keys(this.markerForm)
+          .forEach(key => {
+            if (key === 'tooltip' || key === 'style' || key === 'svgStyle') {
+              Object.keys(this.markerForm[key])
+                .forEach(key2 => this.markerForm[key][key2] = null);
+            }
+            else {
+              this.markerForm[key] = null;
+            }
+          });
+        this.markerForm.saved = false;
+      }
+
+
+
+   
+
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DrawUtil.html">DrawUtil</a></li><li><a href="MeasureUtil.html">MeasureUtil</a></li><li><a href="PanoramaViewer.html">PanoramaViewer</a></li><li><a href="PhotoSphereViewerDrawPolygonTool.html">PhotoSphereViewerDrawPolygonTool</a></li></ul><h3>Global</h3><ul><li><a href="global.html#caculateArea">caculateArea</a></li><li><a href="global.html#coordinatesLocalTransformWGS84">coordinatesLocalTransformWGS84</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Oct 24 2023 16:30:53 GMT+0800 (中国标准时间)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

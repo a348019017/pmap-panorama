@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import legacy from '@vitejs/plugin-legacy'
 import vue2 from '@vitejs/plugin-vue2'
-
+import eslint from 'vite-plugin-eslint2';
 import * as fs from "node:fs"
 
 
@@ -16,6 +16,7 @@ export default defineConfig({
     // Components({
     //   resolvers: [ElementUiResolver()],
     // }),
+    eslint({include: ['src/utils/measureutils.js']}),
     vue2(),
     legacy({
       targets: ['ie >= 11'],

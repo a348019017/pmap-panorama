@@ -163,8 +163,10 @@ export var photos=[
                     35.8560266,
                     287.62
                 ],
-                "panoData": { poseHeading: -28.9, 
-                posePitch: -16.8, 
+                "panoData": { 
+                poseHeading: 28.9, 
+                posePitch: 0, 
+                //posePitch: 16.8, 
                 poseRoll: 0.0  },
                 "height": 126.4,
                 "longitudeoffset": 0,
