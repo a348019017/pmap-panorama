@@ -16,7 +16,8 @@ export default defineConfig({
     // Components({
     //   resolvers: [ElementUiResolver()],
     // }),
-    eslint({include: ['src/utils/measureutils.js']}),
+    //eslint({include: ['src/utils/measureutils.js','src/utils/*.js']}),
+    //eslint({include: ['src/utils/*.js']}),
     vue2(),
     legacy({
       targets: ['ie >= 11'],

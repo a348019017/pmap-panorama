@@ -16,9 +16,7 @@ import "photo-sphere-viewer/dist/plugins/gallery.css";
 import "photo-sphere-viewer/dist/plugins/virtual-tour.css";
 import * as THREE from "three";
 import axios from "axios";
-import icon1 from "@/asset/3dland/service.png"
-import icon2 from "@/asset/3dland/hospitalmark.png"
-import icon3 from "@/asset/3dland/business.png"
+
 
 
 const tiandituQueryParam={
@@ -106,6 +104,8 @@ export class PanoramaViewer {
       
   }
 
+
+ 
 
   /**
    * 获取当前相对地面高度
@@ -338,10 +338,8 @@ export class PanoramaViewer {
     }
   }
 
-
   //添加水平控制的UI
   //添加垂直控制的UI
-  
   azimuth(lonlat1, lonlat2) {
     var lon1 = THREE.MathUtils.degToRad(lonlat1[0])
     var lat1 = THREE.MathUtils.degToRad(lonlat1[1])

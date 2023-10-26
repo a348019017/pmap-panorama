@@ -7,25 +7,8 @@ let id=0;
 let TEMP_ID;
 
 const EARTH_RADIUS=6371000;
-/**
- * 计算面积
- */
-export function caculateArea(panoData,position,center){
-    
-}
 
-/**
- * 坐标转换，本地坐标转换成84坐标
- */
-export function coordinatesLocalTransformWGS84(panoData,position,center){
-     //return [center[0],center[1]]
 
-     let realtiveHeight=center.height;
-     let latitude=position.latitude;
-     //let distance=realtiveHeight/Math.tan(latitude);
-     //let offsetlatitude=panoData.poseHeading;
-    
-}
 
 
 /**
@@ -145,7 +128,7 @@ export class DrawUtil
       let meansx= _.meanBy(positions,i=>i[0]);
       let meansy=_.meanBy(positions,i=>i[1]);
 
-      debugger
+      
       if(this.markers.markers["my_area"])
       {
         this.markers.removeMarker("my_area",false);
@@ -193,6 +176,12 @@ export class DrawUtil
     }
 
 
+
+
+
+
+
+
     onClick(data) {
         
         if (!this.editMarkers || !this.markerForm.type) {
@@ -202,6 +191,7 @@ export class DrawUtil
           const longitude = Math.round(data.longitude * 1000) / 1000;
           const latitude = Math.round(data.latitude * 1000) / 1000;
 
+          debugger
           let rs=this.transformCoordinate(data);
 
           Object.assign(this.markerForm, { longitude, latitude });

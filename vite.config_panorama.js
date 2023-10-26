@@ -52,7 +52,6 @@ export default defineConfig({
           vue: 'Vue',
           "@turf/turf":"turf",
           "cesium":"Cesium",
-          
         }
       }
     }

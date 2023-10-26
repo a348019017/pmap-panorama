@@ -227,6 +227,20 @@ const toolbarDT = [
     },
     children: [],
   },
+  {
+    id: "af66ae8e-129d-4861-ac1b-60efb8ef18b8",
+    name: "loadgeojson",
+    title: "加载geojson",
+    icon: "timePlayer",
+    checked: false,
+    component: "loadGeojson.vue",
+    description: "加载geojson",
+    hide: false,
+    params: {
+      
+    },
+    children: [],
+  },
 ];
 
 export { toolbarDT };
