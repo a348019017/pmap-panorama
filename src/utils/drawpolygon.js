@@ -7,6 +7,7 @@ const TEMP_ID="temp_marker"
 
 /**
  * 绘制功能封装，依赖PSV库
+ * @ignore
  */
 export class PhotoSphereViewerDrawPolygonTool {
   //构造函数,这里地形的传入

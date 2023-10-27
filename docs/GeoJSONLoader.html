@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: DrawUtil</title>
+    <title>JSDoc: Class: GeoJSONLoader</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: DrawUtil</h1>
+    <h1 class="page-title">Class: GeoJSONLoader</h1>
 
     
 
@@ -28,9 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>DrawUtil<span class="signature">(viewer)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>GeoJSONLoader<span class="signature">(viewer)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">绘制帮助类，</div>
+            <div class="class-description">加载GeoJSON</div>
         
     
 </header>
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="DrawUtil"><span class="type-signature"></span>new DrawUtil<span class="signature">(viewer)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="GeoJSONLoader"><span class="type-signature"></span>new GeoJSONLoader<span class="signature">(viewer)</span><span class="type-signature"></span></h4>
     
 
     
@@ -101,7 +101,7 @@
 
             
 
-            <td class="description last">PSV对象</td>
+            <td class="description last">主viewer对象</td>
         </tr>
 
     
@@ -142,7 +142,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawutils.js.html">drawutils.js</a>, <a href="drawutils.js.html#line17">line 17</a>
+        <a href="geojsonloader.js.html">geojsonloader.js</a>, <a href="geojsonloader.js.html#line12">line 12</a>
     </li></ul></dd>
     
 
@@ -183,7 +183,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="DrawUtil.html">DrawUtil</a></dt>
+            <dt><a href="GeoJSONLoader.html">GeoJSONLoader</a></dt>
             <dd></dd>
         </dl>
     
@@ -205,7 +205,7 @@
     
 
     
-    <h4 class="name" id="cancelMarker"><span class="type-signature"></span>cancelMarker<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="loadGeoJSON"><span class="type-signature"></span>loadGeoJSON<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -213,7 +213,7 @@
 
 
 <div class="description">
-    取消绘制
+    加载GeoJSON文件，点作为marker加载，线面分别加载，仅支持FeatureCollection对象，其它对象自行修改支持
 </div>
 
 
@@ -257,7 +257,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawutils.js.html">drawutils.js</a>, <a href="drawutils.js.html#line331">line 331</a>
+        <a href="geojsonloader.js.html">geojsonloader.js</a>, <a href="geojsonloader.js.html#line27">line 27</a>
     </li></ul></dd>
     
 
@@ -293,7 +293,7 @@
     
 
     
-    <h4 class="name" id="newMarker"><span class="type-signature"></span>newMarker<span class="signature">(type)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="removeMarkers"><span class="type-signature"></span>removeMarkers<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -301,7 +301,7 @@
 
 
 <div class="description">
-    image，imageLayer，html，polygonRad，polylineRad，开启绘制
+    根据geosjon文件名移除markers自行
 </div>
 
 
@@ -312,55 +312,6 @@
 
 
 
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>type</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
 
 
 
@@ -394,91 +345,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawutils.js.html">drawutils.js</a>, <a href="drawutils.js.html#line75">line 75</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="transformCoordinate"><span class="type-signature"></span>transformCoordinate<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawutils.js.html">drawutils.js</a>, <a href="drawutils.js.html#line149">line 149</a>
+        <a href="geojsonloader.js.html">geojsonloader.js</a>, <a href="geojsonloader.js.html#line46">line 46</a>
     </li></ul></dd>
     
 

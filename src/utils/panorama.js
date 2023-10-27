@@ -32,6 +32,7 @@ const tiandituQueryParam={
 };
 
 
+
 /**
  * 全景类
  */
@@ -109,7 +110,7 @@ export class PanoramaViewer {
 
   /**
    * 获取当前相对地面高度
-   * @returns 
+   * 
    */
   getRHeight(){
       return this.curphoto.height;
@@ -122,7 +123,7 @@ export class PanoramaViewer {
 
   /**
    * 获取当前姿态角度
-   * @returns 
+   * 
    */
   getPoseData(){
     return this.curphoto.panoData;

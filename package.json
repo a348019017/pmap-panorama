@@ -17,7 +17,7 @@
     "build2": "vite build --config vite.config_panorama.js ",
     "preview": "vite preview --port 4173",
     "build-publish": "npm run build2 && npm publish",
-    "build-doc": "jsdoc -c ./confg.json --readme ./README.md  -r -d ./public/doc"
+    "build-doc": "jsdoc -c ./confg.json --readme ./README.md  -r -d ./docs"
   },
   "dependencies": {
     "@dvgis/cesium-map": "^3.0.0",

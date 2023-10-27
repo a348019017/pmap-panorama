@@ -27,32 +27,16 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import { MarkersPlugin } from "photo-sphere-viewer/dist/plugins/markers";
-import { cloneDeep, omit, debounce, isEqual, pickBy, range } from 'lodash';
-
+import { cloneDeep } from 'lodash';
+import * as _ from "lodash";
+import * as turf from "@turf/turf"
 let TEMP_ID_1 = 'marker-temp';
 let id=0;
 let TEMP_ID;
 
+const EARTH_RADIUS=6371000;
 
-/**
- * 计算面积
- */
-export function caculateArea(panoData,position,center){
-    
-}
 
-/**
- * 坐标转换，本地坐标转换成84坐标
- */
-export function coordinatesLocalTransformWGS84(panoData,position,center){
-     //return [center[0],center[1]]
-
-     let realtiveHeight=center.height;
-     let latitude=position.latitude;
-     let distance=realtiveHeight/Math.tan(latitude);
-     let offsetlatitude=panoData.poseHeading;
-     
-}
 
 
 /**
@@ -65,6 +49,7 @@ export class DrawUtil
    * @param {*} viewer  PSV对象
    */
     constructor(viewer){
+      this.containerViewer=viewer;
         this.viewer=viewer.PSV;
         //this.markerForm={};
 
@@ -132,6 +117,7 @@ export class DrawUtil
             this.markerForm.width = 32;
             this.markerForm.height = 32;
             this.markerForm.anchor = 'bottom center';
+
             break;
           case 'imageLayer':
             this.markerForm.imageLayer = this.TARGET_URL;
@@ -158,6 +144,68 @@ export class DrawUtil
     }
 
 
+    callbackShowArea(positions){
+
+      let that=this;
+      let realpos=positions.map(i=>that.transformCoordinate({latitude:i[1],longitude:i[0]},false));
+      realpos.push(realpos[0]);
+      let areapolygon=turf.polygon([realpos]);
+      let areaValue=turf.area(areapolygon);
+      //let center=turf.center(areapolygon);
+
+      let meansx= _.meanBy(positions,i=>i[0]);
+      let meansy=_.meanBy(positions,i=>i[1]);
+
+      
+      if(this.markers.markers["my_area"])
+      {
+        this.markers.removeMarker("my_area",false);
+      }
+      this.markers.addMarker({
+        id:'my_area',
+        html : `面积${areaValue.toFixed(2)}平方米`,
+        fontSize : '20px',
+        color : '#FF0000',
+        longitude: meansx,
+        latitude: meansy,
+      })
+    }
+
+    /**
+     * 
+     */
+    transformCoordinate(coord,isradis=true){
+      
+      let lat=coord.latitude;
+      let lng=coord.longitude;
+      let center=this.containerViewer.getCenter();
+      
+      let panoData=this.containerViewer.getPoseData();
+      let rheight=this.containerViewer.getRHeight();
+
+      let distance=rheight/Math.tan(Math.abs(lat));
+      let offsetlng=panoData.poseHeading/180*Math.PI;
+
+      //方位角
+      let offsetAzmu=lng-offsetlng;
+      let offsetlat=distance*Math.cos(offsetAzmu);
+       offsetlng=distance*Math.sin(offsetAzmu);
+
+      offsetlat=offsetlat/EARTH_RADIUS;
+      offsetlng=offsetlng/(EARTH_RADIUS*Math.sin(center[1]/180*Math.PI));
+      
+      if(isradis){
+        return [center[0]/180*Math.PI+offsetlng,center[1]/180*Math.PI+offsetlat]
+      }else
+      {
+        return [(center[0]/180*Math.PI+offsetlng)/Math.PI*180,(center[1]/180*Math.PI+offsetlat)/Math.PI*180]
+      }
+      
+    }
+
+
+
+
 
 
 
@@ -170,6 +218,10 @@ export class DrawUtil
   
           const longitude = Math.round(data.longitude * 1000) / 1000;
           const latitude = Math.round(data.latitude * 1000) / 1000;
+
+          debugger
+          let rs=this.transformCoordinate(data);
+
           Object.assign(this.markerForm, { longitude, latitude });
   
           switch (this.markerForm.type) {
@@ -182,6 +234,16 @@ export class DrawUtil
                   longitude,
                   latitude,
                 });
+
+                this.markers.addMarker({
+                  id:TEMP_ID+'_1',
+                  html : `经度${(rs[0]*180/Math.PI).toFixed(4)}纬度${(rs[1]*180/Math.PI).toFixed(4)}`,
+                  fontSize : '20px',
+                  color : '#FF0000',
+                  longitude,
+                  latitude,
+                })
+
                 this.cancelMarker();
               }
               else {
@@ -231,6 +293,9 @@ export class DrawUtil
                     id      : TEMP_ID,
                     hideList: true,
                   });
+
+                  this.callbackShowArea(this.markerForm.polygonRad);
+
                   break;
               }
               break;
@@ -328,13 +393,13 @@ export class DrawUtil
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DrawUtil.html">DrawUtil</a></li><li><a href="MeasureUtil.html">MeasureUtil</a></li><li><a href="PanoramaViewer.html">PanoramaViewer</a></li><li><a href="PhotoSphereViewerDrawPolygonTool.html">PhotoSphereViewerDrawPolygonTool</a></li></ul><h3>Global</h3><ul><li><a href="global.html#caculateArea">caculateArea</a></li><li><a href="global.html#coordinatesLocalTransformWGS84">coordinatesLocalTransformWGS84</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DrawUtil.html">DrawUtil</a></li><li><a href="GeoJSONLoader.html">GeoJSONLoader</a></li><li><a href="MeasureUtil.html">MeasureUtil</a></li><li><a href="PanoramaViewer.html">PanoramaViewer</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Oct 24 2023 16:30:53 GMT+0800 (中国标准时间)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Oct 26 2023 18:52:49 GMT+0800 (中国标准时间)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -1,5 +1,5 @@
 /**
- * 测量帮助类
+ * 测量帮助类,实际代码在drawUtil中，暂未迁移
  */
 export class MeasureUtil{
  
